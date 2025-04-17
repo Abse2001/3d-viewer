@@ -321,11 +321,11 @@ export class BoardGeomBuilder {
 
         // TODO: Subtract via/hole overlaps if needed for accuracy
 
-        const materialColor =
+        const tracesMaterialColor =
           tracesMaterialColors[this.board.material] ??
           colors.fr4GreenSolderWithMask
 
-        traceGeom = colorize(materialColor, traceGeom)
+        traceGeom = colorize(tracesMaterialColor, traceGeom)
 
         this.traceGeoms.push(traceGeom)
       }
@@ -434,9 +434,9 @@ export class BoardGeomBuilder {
   private finalize() {
     if (!this.boardGeom) return
     // Colorize the final board geometry
-    const boardMaterial =
+    const boardMaterialColor =
       boardMaterialColors[this.board.material] ?? colors.fr4Green
-    this.boardGeom = colorize(boardMaterial, this.boardGeom)
+    this.boardGeom = colorize(boardMaterialColor, this.boardGeom)
 
     this.finalGeoms = [
       this.boardGeom,
