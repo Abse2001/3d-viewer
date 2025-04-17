@@ -16,7 +16,12 @@ import { cuboid, cylinder, line } from "@jscad/modeling/src/primitives"
 import { colorize } from "@jscad/modeling/src/colors"
 import { subtract, union } from "@jscad/modeling/src/operations/booleans"
 import { platedHole } from "./geoms/plated-hole"
-import { M, colors, BOARD_COLOR_MATERIAL_MAP } from "./geoms/constants"
+import {
+  M,
+  colors,
+  boardMaterialColors,
+  tracesMaterialColors,
+} from "./geoms/constants"
 import { extrudeLinear } from "@jscad/modeling/src/operations/extrusions"
 import { expand } from "@jscad/modeling/src/operations/expansions"
 import { createBoardGeomWithOutline } from "./geoms/create-board-with-outline"
@@ -317,9 +322,8 @@ export class BoardGeomBuilder {
         // TODO: Subtract via/hole overlaps if needed for accuracy
 
         const materialColor =
-          BOARD_COLOR_MATERIAL_MAP[
-            this.board.material === "fr4" ? "fr4Traces" : "fr1Traces"
-          ] ?? colors.fr4GreenSolderWithMask
+          tracesMaterialColors[this.board.material] ??
+          colors.fr4GreenSolderWithMask
 
         traceGeom = colorize(materialColor, traceGeom)
 
@@ -431,7 +435,7 @@ export class BoardGeomBuilder {
     if (!this.boardGeom) return
     // Colorize the final board geometry
     const boardMaterial =
-      BOARD_COLOR_MATERIAL_MAP[this.board.material] ?? colors.fr4Green
+      boardMaterialColors[this.board.material] ?? colors.fr4Green
     this.boardGeom = colorize(boardMaterial, this.boardGeom)
 
     this.finalGeoms = [

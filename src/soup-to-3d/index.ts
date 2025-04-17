@@ -3,7 +3,11 @@ import type { AnyCircuitElement } from "circuit-json"
 import { su } from "@tscircuit/soup-util"
 import { cuboid } from "@jscad/modeling/src/primitives"
 import { colorize } from "@jscad/modeling/src/colors"
-import { colors, BOARD_COLOR_MATERIAL_MAP } from "../geoms/constants"
+import {
+  colors,
+  boardMaterialColors,
+  tracesMaterialColors,
+} from "../geoms/constants"
 import { createBoardGeomWithOutline } from "../geoms/create-board-with-outline"
 
 /**
@@ -38,7 +42,7 @@ export const createSimplifiedBoardGeom = (
   }
 
   // Colorize and return the simplified board
-  const material = BOARD_COLOR_MATERIAL_MAP[board.material] ?? colors.fr4Green
+  const material = boardMaterialColors[board.material] ?? colors.fr4Green
 
   return [colorize(material, boardGeom)]
 }
