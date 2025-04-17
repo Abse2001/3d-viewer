@@ -315,8 +315,17 @@ export class BoardGeomBuilder {
         )
 
         // TODO: Subtract via/hole overlaps if needed for accuracy
+        const materialColors = {
+          fr4: colors.fr4GreenSolderWithMask,
+          fr1: colors.fr1CopperSolderWithMask,
+        }
 
-        traceGeom = colorize(colors.fr4GreenSolderWithMask, traceGeom)
+        const materialColor =
+          materialColors[this.board.material ?? ""] ??
+          colors.fr4GreenSolderWithMask
+
+        traceGeom = colorize(materialColor, traceGeom)
+
         this.traceGeoms.push(traceGeom)
       }
       currentSegmentPoints = []
@@ -424,7 +433,10 @@ export class BoardGeomBuilder {
   private finalize() {
     if (!this.boardGeom) return
     // Colorize the final board geometry
-    this.boardGeom = colorize(colors.fr4Green, this.boardGeom)
+    const material = this.board.material ?? "fr4"
+    const boardColor = material === "fr1" ? colors.fr1Copper : colors.fr4Green
+
+    this.boardGeom = colorize(boardColor, this.boardGeom)
 
     this.finalGeoms = [
       this.boardGeom,

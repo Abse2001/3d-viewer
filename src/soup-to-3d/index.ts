@@ -46,7 +46,10 @@ export const createSimplifiedBoardGeom = (
   }
 
   // Colorize and return the simplified board
-  return [colorize(colors.fr4Green, boardGeom)]
+  const material = board.material ?? "fr4"
+  const color = material === "fr4" ? colors.fr4Green : colors.fr1Copper
+
+  return [colorize(color, boardGeom)]
 }
 
 /**
