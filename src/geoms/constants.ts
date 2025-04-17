@@ -9,3 +9,9 @@ export const colors = {
   fr1Copper: [0.8, 0.4, 0.2],
   fr1CopperSolderWithMask: [0.9, 0.6, 0.2],
 } satisfies Record<string, RGB>
+export const BOARD_COLOR_MATERIAL_MAP: Record<string, RGB> = {
+  fr1: colors.fr1Copper,
+  fr4: colors.fr4Green,
+  fr1Traces: colors.fr1CopperSolderWithMask,
+  fr4Traces: colors.fr4GreenSolderWithMask,
+}
