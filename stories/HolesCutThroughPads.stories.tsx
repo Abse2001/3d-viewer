@@ -11,7 +11,7 @@ const createCircuit = () => {
       material="fr1"
       autorouter="sequential-trace"
     >
-      <chip
+      {/* <chip
         name="P1"
         footprint="stampboard_left9_right9_bottom5_top0_p2.54mm_innerhole_h23.8mm_showpinlabels"
         schWidth={1}
@@ -95,7 +95,8 @@ const createCircuit = () => {
           GP1: "net.GPIO1",
           GP0: "net.GPIO0",
         }}
-      />
+      /> */}
+      <silkscreenrect height="1mm" width="1mm" layer="top" />
     </board>,
   )
 
@@ -104,6 +105,7 @@ const createCircuit = () => {
 
 export const holesCutThroughPadsStory = () => {
   const circuitJson = createCircuit()
+  console.log(circuitJson.filter((item) => item.type === "pcb_silkscreen_rect"))
   return <CadViewer circuitJson={circuitJson as any} />
 }
 
