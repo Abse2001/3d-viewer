@@ -16,7 +16,7 @@ export function clampRectBorderRadius(
   const halfWidth = width / 2
   const halfHeight = height / 2
 
-  return Math.max(0, Math.min(rawRadius, halfWidth, halfHeight))
+  return Math.max(0, Math.min(rawRadius, halfWidth * 0.9, halfHeight * 0.9))
 }
 
 export function extractRectBorderRadius(source: any): RectBorderRadiusInput {
