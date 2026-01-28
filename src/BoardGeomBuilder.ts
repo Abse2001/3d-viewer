@@ -1,56 +1,55 @@
+import { colorize } from "@jscad/modeling/src/colors"
 import type { Geom3 } from "@jscad/modeling/src/geometries/types"
-import type {
-  AnyCircuitElement,
-  PcbPlatedHole,
-  PcbBoard,
-  PcbHole,
-  PcbSmtPad,
-  PcbTrace,
-  PcbVia,
-  PcbCutout,
-  PcbCopperPour,
-  PcbPanel,
-} from "circuit-json"
-import { su } from "@tscircuit/circuit-json-util"
-import { translate, rotateZ } from "@jscad/modeling/src/operations/transforms"
+import type { Vec2 } from "@jscad/modeling/src/maths/types"
+import {
+  intersect,
+  subtract,
+  union,
+} from "@jscad/modeling/src/operations/booleans"
+import { expand } from "@jscad/modeling/src/operations/expansions"
+import { extrudeLinear } from "@jscad/modeling/src/operations/extrusions"
+import { rotateZ, translate } from "@jscad/modeling/src/operations/transforms"
 import {
   cuboid,
   cylinder,
-  line,
-  polygon as jscadPolygon,
-  roundedRectangle,
   ellipse,
+  polygon as jscadPolygon,
+  line,
+  roundedRectangle,
 } from "@jscad/modeling/src/primitives"
-import { colorize } from "@jscad/modeling/src/colors"
-import {
-  subtract,
-  union,
-  intersect,
-} from "@jscad/modeling/src/operations/booleans"
-import { platedHole } from "./geoms/plated-hole"
-import {
-  M,
-  colors,
-  boardMaterialColors,
-  tracesMaterialColors,
-  BOARD_SURFACE_OFFSET,
-} from "./geoms/constants"
-import { extrudeLinear } from "@jscad/modeling/src/operations/extrusions"
-import { expand } from "@jscad/modeling/src/operations/expansions"
-import {
-  createBoardGeomWithOutline,
-  arePointsClockwise,
-} from "./geoms/create-board-with-outline"
-import type { Vec2 } from "@jscad/modeling/src/maths/types"
-
-import { createGeom2FromBRep } from "./geoms/brep-converter"
+import { su } from "@tscircuit/circuit-json-util"
+import type {
+  AnyCircuitElement,
+  PcbBoard,
+  PcbCopperPour,
+  PcbCutout,
+  PcbHole,
+  PcbPanel,
+  PcbPlatedHole,
+  PcbSmtPad,
+  PcbTrace,
+  PcbVia,
+} from "circuit-json"
 import type { GeomContext } from "./GeomContext"
+import { createGeom2FromBRep } from "./geoms/brep-converter"
+import {
+  BOARD_SURFACE_OFFSET,
+  boardMaterialColors,
+  colors,
+  M,
+  tracesMaterialColors,
+} from "./geoms/constants"
+import {
+  arePointsClockwise,
+  createBoardGeomWithOutline,
+} from "./geoms/create-board-with-outline"
+import { createHoleWithPolygonPadHoleGeom } from "./geoms/create-hole-with-polygon-pad"
+import { platedHole } from "./geoms/plated-hole"
+import { createViaBoardDrill, createViaCopper } from "./geoms/via-geoms"
 import {
   clampRectBorderRadius,
   extractRectBorderRadius,
 } from "./utils/rect-border-radius"
-import { createHoleWithPolygonPadHoleGeom } from "./geoms/create-hole-with-polygon-pad"
-import { createViaCopper, createViaBoardDrill } from "./geoms/via-geoms"
 
 const PAD_ROUNDED_SEGMENTS = 64
 const BOARD_CLIP_Z_MARGIN = 1
@@ -112,6 +111,7 @@ export class BoardGeomBuilder {
   private pcb_vias: PcbVia[]
   private pcb_cutouts: PcbCutout[]
   private pcb_copper_pours: PcbCopperPour[]
+  private includeCopperPours: boolean
 
   private boardGeom: Geom3 | null = null
   private platedHoleGeoms: Geom3[] = []
@@ -153,9 +153,11 @@ export class BoardGeomBuilder {
   constructor(
     circuitJson: AnyCircuitElement[],
     onComplete: (geoms: Geom3[]) => void,
+    opts: { includeCopperPours?: boolean } = {},
   ) {
     this.circuitJson = circuitJson
     this.onCompleteCallback = onComplete
+    this.includeCopperPours = opts.includeCopperPours ?? true
 
     // Extract elements - check for panel first, then board
     const panels = circuitJson.filter(
@@ -192,9 +194,11 @@ export class BoardGeomBuilder {
     this.traces = su(circuitJson).pcb_trace.list()
     this.pcb_vias = su(circuitJson).pcb_via.list()
     this.pcb_cutouts = su(circuitJson).pcb_cutout.list()
-    this.pcb_copper_pours = circuitJson.filter(
-      (e) => e.type === "pcb_copper_pour",
-    ) as any
+    this.pcb_copper_pours = this.includeCopperPours
+      ? (circuitJson.filter(
+          (e): e is PcbCopperPour => e.type === "pcb_copper_pour",
+        ) as PcbCopperPour[])
+      : []
 
     this.ctx = { pcbThickness: this.board.thickness ?? 1.2 }
 
