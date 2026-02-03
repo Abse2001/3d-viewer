@@ -7,8 +7,6 @@ export interface TextureResolutionOptions {
   minTextureResolution?: number
 }
 
-// Conservative caps to keep per-layer canvases from exhausting GPU memory.
-// Increase these values (pixels/dimension) to improve texture quality on large boards.
 const DEFAULT_MAX_TEXTURE_PIXELS = 4_000_000
 const DEFAULT_MAX_TEXTURE_DIMENSION = 4096
 const DEFAULT_MIN_TEXTURE_RESOLUTION = 1
@@ -34,7 +32,6 @@ export function getLayerTextureResolution(
     return desiredResolution
   }
 
-  // Cap by max dimension and by total pixel budget.
   const maxDim = Math.max(bounds.width, bounds.height)
   const maxDimResolution = maxTextureDimension / maxDim
   const maxAreaResolution = Math.sqrt(
