@@ -18,7 +18,7 @@ import { createPanelOutlineTextureForLayer } from "../utils/panel-outline-textur
 import { createSilkscreenTextureForLayer } from "../utils/silkscreen-texture"
 import { createSoldermaskTextureForLayer } from "../utils/soldermask-texture"
 import { createTraceTextureForLayer } from "../utils/trace-texture"
-import { getLayerTextureResolution } from "../utils/layer-texture-resolution"
+import { getLayerTextureResolution } from "../utils/lget-ayer-texture-resolution"
 
 interface JscadBoardTexturesProps {
   circuitJson: AnyCircuitElement[]

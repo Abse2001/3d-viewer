@@ -24,7 +24,7 @@ import { createCopperTextTextureForLayer } from "../utils/copper-text-texture"
 import { createPanelOutlineTextureForLayer } from "../utils/panel-outline-texture"
 import { createCopperPourTextureForLayer } from "../textures"
 import type { LayerTextures } from "../textures"
-import { getLayerTextureResolution } from "../utils/layer-texture-resolution"
+import { getLayerTextureResolution } from "../utils/lget-ayer-texture-resolution"
 
 export interface ManifoldGeoms {
   board?: {
