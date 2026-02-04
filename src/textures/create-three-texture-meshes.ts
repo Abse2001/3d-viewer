@@ -19,6 +19,7 @@ interface TexturePlaneConfig {
   isBottomLayer: boolean
   textureType: TextureType
   usePolygonOffset?: boolean
+  polygonOffsetUnits?: number
   renderOrder?: number
   isFaux?: boolean
 }
@@ -33,6 +34,7 @@ function createTexturePlane(
     isBottomLayer,
     textureType,
     usePolygonOffset = false,
+    polygonOffsetUnits,
     renderOrder = 0,
     isFaux = false,
   } = config
@@ -51,8 +53,7 @@ function createTexturePlane(
     side: THREE.DoubleSide,
     depthWrite: textureType === "panel-outlines",
     polygonOffset: usePolygonOffset,
-    polygonOffsetFactor: usePolygonOffset ? -4 : 0, // Increased for better z-fighting prevention
-    polygonOffsetUnits: usePolygonOffset ? -4 : 0,
+    polygonOffsetUnits: usePolygonOffset ? (polygonOffsetUnits ?? -0.9) : 0,
     opacity: isFaux ? FAUX_BOARD_OPACITY : 1.0,
   })
   const mesh = new THREE.Mesh(planeGeom, material)
@@ -113,7 +114,7 @@ export function createTextureMeshes(
       yOffset: pcbThickness / 2 + 0.003, // Slightly above soldermask
       isBottomLayer: false,
       textureType: "silkscreen",
-      usePolygonOffset: false,
+      usePolygonOffset: true,
       renderOrder: 3, // Render after traces
       isFaux,
     },
@@ -156,7 +157,7 @@ export function createTextureMeshes(
       yOffset: -pcbThickness / 2 - 0.003,
       isBottomLayer: true,
       textureType: "silkscreen",
-      usePolygonOffset: false,
+      usePolygonOffset: true,
       renderOrder: 3, // Render after traces
       isFaux,
     },

@@ -182,6 +182,7 @@ export function JscadBoardTextures({
       name: string,
       usePolygonOffset = false,
       depthWrite = false,
+      polygonOffsetUnits?: number,
     ) => {
       if (!texture) return null
 
@@ -197,7 +198,7 @@ export function JscadBoardTextures({
         side: THREE.DoubleSide,
         depthWrite,
         polygonOffset: usePolygonOffset,
-        polygonOffsetUnits: usePolygonOffset ? -0.8 : 0,
+        polygonOffsetUnits: usePolygonOffset ? (polygonOffsetUnits ?? -0.9) : 0,
         opacity: isFaux ? FAUX_BOARD_OPACITY : 1.0,
       })
       const mesh = new THREE.Mesh(planeGeom, material)
@@ -282,6 +283,7 @@ export function JscadBoardTextures({
         pcbThickness / 2 + SURFACE_OFFSET + 0.002,
         false,
         "jscad-top-silkscreen",
+        true,
       )
       if (topSilkscreenMesh) {
         meshes.push(topSilkscreenMesh)
@@ -296,6 +298,7 @@ export function JscadBoardTextures({
         -pcbThickness / 2 - SURFACE_OFFSET - 0.002,
         true,
         "jscad-bottom-silkscreen",
+        true,
       )
       if (bottomSilkscreenMesh) {
         meshes.push(bottomSilkscreenMesh)

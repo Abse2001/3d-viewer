@@ -25,6 +25,21 @@ const createCircuit = () => {
         ]}
       />
       <silkscreentext layer="top" pcbX="1mm" pcbY="5mm" text="Tscircuit" />
+      <silkscreenrect
+        height={"8mm"}
+        width={"8mm"}
+        layer="top"
+        filled
+        pcbX={10}
+      />
+      <silkscreenrect
+        height={"8mm"}
+        width={"8mm"}
+        layer="top"
+        strokeWidth={1}
+        pcbX={-10}
+      />
+
       <copperpour
         connectsTo="net.GND"
         layer="top"
