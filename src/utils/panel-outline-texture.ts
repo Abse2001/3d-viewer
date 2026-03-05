@@ -1,6 +1,35 @@
-import * as THREE from "three"
-import type { AnyCircuitElement, PcbBoard } from "circuit-json"
 import { su } from "@tscircuit/circuit-json-util"
+import type { AnyCircuitElement, PcbBoard, PcbPanel } from "circuit-json"
+import * as THREE from "three"
+
+const resolvePanelIdForTexture = (
+  circuitJson: AnyCircuitElement[],
+  panelData: PcbBoard,
+): string | null => {
+  const panels = circuitJson.filter(
+    (e): e is PcbPanel => e.type === "pcb_panel",
+  )
+  if (panels.length === 0) return null
+
+  const directPanel = panels.find(
+    (p) => p.pcb_panel_id === panelData.pcb_board_id,
+  )
+  if (directPanel) return directPanel.pcb_panel_id
+
+  const panelIdFromBoard = panelData.pcb_panel_id
+  if (panelIdFromBoard) return panelIdFromBoard
+
+  if (panels.length === 1) return panels[0]!.pcb_panel_id
+
+  const matchingByGeometry = panels.find(
+    (p) =>
+      p.center.x === panelData.center.x &&
+      p.center.y === panelData.center.y &&
+      p.width === panelData.width &&
+      p.height === panelData.height,
+  )
+  return matchingByGeometry?.pcb_panel_id ?? null
+}
 
 export function createPanelOutlineTextureForLayer({
   layer,
@@ -15,9 +44,39 @@ export function createPanelOutlineTextureForLayer({
   outlineColor?: string
   traceTextureResolution: number
 }): THREE.CanvasTexture | null {
-  const boardsInPanel = su(circuitJson)
-    .pcb_board.list()
-    .filter((b) => b.pcb_panel_id === panelData.pcb_board_id)
+  const panelId = resolvePanelIdForTexture(circuitJson, panelData)
+  if (!panelId) return null
+
+  const allBoards = su(circuitJson).pcb_board.list()
+  let boardsInPanel = allBoards.filter((b) => b.pcb_panel_id === panelId)
+
+  if (boardsInPanel.length === 0) {
+    const boardsRelativeToPanelAnchor = allBoards.filter(
+      (b) => (b as any).position_mode === "relative_to_panel_anchor",
+    )
+    if (boardsRelativeToPanelAnchor.length > 0) {
+      boardsInPanel = boardsRelativeToPanelAnchor
+    }
+  }
+
+  if (boardsInPanel.length === 0) {
+    const panelMinX = panelData.center.x - (panelData.width ?? 0) / 2
+    const panelMaxX = panelData.center.x + (panelData.width ?? 0) / 2
+    const panelMinY = panelData.center.y - (panelData.height ?? 0) / 2
+    const panelMaxY = panelData.center.y + (panelData.height ?? 0) / 2
+    boardsInPanel = allBoards.filter((b) => {
+      const minX = b.center.x - (b.width ?? 0) / 2
+      const maxX = b.center.x + (b.width ?? 0) / 2
+      const minY = b.center.y - (b.height ?? 0) / 2
+      const maxY = b.center.y + (b.height ?? 0) / 2
+      return (
+        minX >= panelMinX &&
+        maxX <= panelMaxX &&
+        minY >= panelMinY &&
+        maxY <= panelMaxY
+      )
+    })
+  }
 
   if (boardsInPanel.length === 0) {
     return null
